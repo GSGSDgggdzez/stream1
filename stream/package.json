@@ -22,5 +22,13 @@
         "tailwindcss": "^3.2.1",
         "typescript": "^5.0.2",
         "vite": "^5.0"
+    },
+    "dependencies": {
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.1.1",
+        "lucide-react": "^0.452.0",
+        "react-lazy-load-image-component": "^1.6.2",
+        "tailwind-merge": "^2.5.3",
+        "tailwindcss-animate": "^1.0.7"
     }
 }
