@@ -3,8 +3,16 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/Components/ui/select';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -12,7 +20,43 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        Location: '',
+        Date_Birth:'',
     });
+
+    useEffect(() => {
+        fetchLocations();
+    }, []);
+
+
+    interface Location {
+        id: number | string;
+        name: string;
+    }
+
+
+    const [locationOptions, setLocationOptions] = useState<Location[]>([]);
+
+
+    const fetchLocations = async () => {
+        try {
+            const response = await fetch('/locations');
+            const data = await response.json();
+            console.log('Fetched locations:', data);
+            // Ensure that data is an array
+            if (Array.isArray(data)) {
+                setLocationOptions(data);
+            } else {
+                console.error('Received data is not an array:', data);
+                setLocationOptions([]);
+            }
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+            setLocationOptions([]);
+        }
+    };
+
+
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -26,8 +70,8 @@ export default function Register() {
         <GuestLayout>
             <Head title="Register" />
             <div className="mb-4 text-center text-5xl font-bold text-white">
-                    Sign Up
-                </div>
+                Sign Up
+            </div>
 
             <form onSubmit={submit}>
                 <div>
@@ -105,6 +149,58 @@ export default function Register() {
                         message={errors.password_confirmation}
                         className="mt-2"
                     />
+                </div>
+                {/* these is the location input  */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="Location" value="Location" className='text-white' />
+
+                    <Select>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Array.isArray(locationOptions) && locationOptions.map((location) => (
+                                <SelectItem key={location.id} value={location.name}>
+                                    {location.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <InputError message={errors.Location} className="mt-3" />
+                </div>
+                {/* these is the date of birth */}
+                <div>
+                    <InputLabel htmlFor="Date_Birth" value="Date Birth" className='text-white' />
+
+                    <TextInput
+                        id="Date_Birth"
+                        name="Date_Birth"
+                        className="mt-1 block w-full bg-transparent text-white"
+                        type='date'
+                        autoComplete="Date_Birth"
+                        isFocused={true}
+                        onChange={(e) => setData('Date_Birth', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.Date_Birth} className="mt-2" />
+                </div>
+                <div>
+                    <InputLabel htmlFor="Date_Birth" value="Date Birth" className='text-white' />
+
+                    <TextInput
+                        id="Date_Birth"
+                        name="Date_Birth"
+                        className="mt-1 block w-full bg-transparent text-white"
+                        type='date'
+                        autoComplete="Date_Birth"
+                        isFocused={true}
+                        onChange={(e) => setData('Date_Birth', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.Date_Birth} className="mt-2" />
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">
