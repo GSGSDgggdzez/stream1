@@ -14,6 +14,8 @@ import {
     SelectValue,
 } from '@/Components/ui/select';
 
+import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -21,7 +23,8 @@ export default function Register() {
         password: '',
         password_confirmation: '',
         Location: '',
-        Date_Birth:'',
+        Date_Birth: '',
+        gender: '',
     });
 
     useEffect(() => {
@@ -32,12 +35,12 @@ export default function Register() {
     interface Location {
         id: number | string;
         name: string;
+        location: string;
+        phone_code: number;
     }
 
 
     const [locationOptions, setLocationOptions] = useState<Location[]>([]);
-
-
     const fetchLocations = async () => {
         try {
             const response = await fetch('/locations');
@@ -74,6 +77,7 @@ export default function Register() {
             </div>
 
             <form onSubmit={submit}>
+                {/* these is the name  */}
                 <div>
                     <InputLabel htmlFor="name" value="Name" className='text-white' />
 
@@ -90,7 +94,7 @@ export default function Register() {
 
                     <InputError message={errors.name} className="mt-2" />
                 </div>
-
+                {/* these is the email */}
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Email" className='text-white' />
 
@@ -107,7 +111,7 @@ export default function Register() {
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
-
+                {/* these is the pass word */}
                 <div className="mt-4">
                     <InputLabel htmlFor="password" value="Password" className='text-white' />
 
@@ -124,7 +128,7 @@ export default function Register() {
 
                     <InputError message={errors.password} className="mt-2" />
                 </div>
-
+                {/* these is the password confirmation */}
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
@@ -150,13 +154,49 @@ export default function Register() {
                         className="mt-2"
                     />
                 </div>
+                {/* these is the date of birth */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="Date_Birth" value="Date Birth" className='text-white' />
+
+                    <TextInput
+                        id="Date_Birth"
+                        name="Date_Birth"
+                        className="mt-1 block w-full bg-transparent text-white"
+                        type='date'
+                        autoComplete="Date_Birth"
+                        isFocused={true}
+                        onChange={(e) => setData('Date_Birth', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.Date_Birth} className="mt-2" />
+                </div>
+                {/* these is the gender input */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="gender" value="Gender" className='text-white' />
+
+                    <RadioGroup onValueChange={(value) => setData('gender', value)} defaultValue="Male">
+                        <div className="flex items-center space-x-2 text-white">
+                            <RadioGroupItem value="Male" id="Male" className='text-white border-white' />
+                            <InputLabel htmlFor="Male" className='text-white' >Male</InputLabel>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Female" id="Female" className='text-white border-white' />
+                            <InputLabel htmlFor="Female" className='text-white' >Female</InputLabel>
+                        </div>
+                    </RadioGroup>
+
+
+                    <InputError message={errors.gender} className="mt-2" />
+                </div>
+
                 {/* these is the location input  */}
                 <div className="mt-4">
                     <InputLabel htmlFor="Location" value="Location" className='text-white' />
 
-                    <Select>
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a country" />
+                    <Select onValueChange={(value) => setData('Location', value)}>
+                        <SelectTrigger className="w-full bg-transparent placeholder:to-white">
+                            <SelectValue placeholder="Select a country" className='bg-transparent text-white placeholder:to-white' />
                         </SelectTrigger>
                         <SelectContent>
                             {Array.isArray(locationOptions) && locationOptions.map((location) => (
@@ -168,39 +208,6 @@ export default function Register() {
                     </Select>
 
                     <InputError message={errors.Location} className="mt-3" />
-                </div>
-                {/* these is the date of birth */}
-                <div>
-                    <InputLabel htmlFor="Date_Birth" value="Date Birth" className='text-white' />
-
-                    <TextInput
-                        id="Date_Birth"
-                        name="Date_Birth"
-                        className="mt-1 block w-full bg-transparent text-white"
-                        type='date'
-                        autoComplete="Date_Birth"
-                        isFocused={true}
-                        onChange={(e) => setData('Date_Birth', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.Date_Birth} className="mt-2" />
-                </div>
-                <div>
-                    <InputLabel htmlFor="Date_Birth" value="Date Birth" className='text-white' />
-
-                    <TextInput
-                        id="Date_Birth"
-                        name="Date_Birth"
-                        className="mt-1 block w-full bg-transparent text-white"
-                        type='date'
-                        autoComplete="Date_Birth"
-                        isFocused={true}
-                        onChange={(e) => setData('Date_Birth', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.Date_Birth} className="mt-2" />
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">

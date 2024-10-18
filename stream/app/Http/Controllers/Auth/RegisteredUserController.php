@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Auth\Events\Registered;
+use Pest\Plugins\Profile;
 
 class RegisteredUserController extends Controller
 {
@@ -34,23 +35,34 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'Date_Birth' => 'required|date',
+            'Location' => 'required|string|max:255',
+            'gender' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'gender' => $request->gender,
             'email' => $request->email,
+            'Location' => $request->Location,
+            'date_of_birth' => $request->Date_Birth,
             'password' => Hash::make($request->password),
+        ]);
+
+         $user->profiles()->create([
+            'user_id' => $user->id,
+            'Profile_name' => $request->name,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('profiles.show', ['user' => $user->id]);
+
     }
-    
     public function getLocations()
 {
     return Cache::remember('countries', 86400, function () {
@@ -65,8 +77,10 @@ class RegisteredUserController extends Controller
 
         return array_map(function($country) {
             return [
-                'id' => $country['id'] ?? $country['name'],
-                'name' => $country['name']
+                'id' => $country['name'],
+                'name' => $country['name'],
+                'phone_code' => $country['phone_code'] ?? null,
+                'flag' => $country ['href']['flag'] ?? null,
             ];
         }, $countries);
     });
