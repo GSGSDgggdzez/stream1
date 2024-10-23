@@ -33,18 +33,29 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
 
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        avatar: '',
-        id: '',
-        });
-
-    const submit: FormEventHandler = (e) => { 
+        Profile_name: '',
+        avatar: null as File | null,
+        id: user.id,
+    });
+    
+    const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
+        console.log('Submitting form data:', data);
+        
         post(route('profiles'), {
-            onFinish: () => reset('name', 'avatar'),
+            forceFormData: true,
+            onSuccess: () => {
+                console.log('Profile created successfully');
+                reset('Profile_name', 'avatar');
+                window.location.reload(); // Refresh to show new profile
+            },
+            onError: (errors) => {
+                console.log('Profile creation failed:', errors);
+            }
         });
     };
+    
+    
 
     // Function to generate random background colors for profile placeholders
     const getRandomColor = () => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`;
@@ -63,7 +74,7 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                         // If profiles exist, map over them and display each one
                         profiles.map((profile) => (
                             // Individual profile container
-                            <div key={profile.id} className="w-32 h-32 rounded-md overflow-hidden">
+                            <div key={profile.id} className="w-32 h-32 rounded-md overflow-hidden transform transition-transform duration-200 hover:scale-110">
                                 {profile.Avatar_url ? (
                                     // If profile has an avatar, display it
                                     <img src={profile.Avatar_url} alt={profile.Profile_name} className="w-full h-full object-cover" />
@@ -83,7 +94,7 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                         ))
                     ) : (
                         // If no profiles, display a single placeholder for the user
-                        <div className="w-32 h-32 rounded-md overflow-hidden">
+                        <div className="w-32 h-32 rounded-md overflow-hidden transform transition-transform duration-200 hover:scale-110">
                             {/* Placeholder with user's initials on a random background */}
                             <div
                                 className="w-full h-full flex items-center justify-center text-6xl font-bold text-white"
@@ -108,42 +119,44 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                             <PopoverTrigger className="bg-transparent border-white border-2 text-white rounded-md px-4 py-1 hover:border-[#E50000] hover:text-[#E50000]">New Profile</PopoverTrigger>
                             <PopoverContent className='bg-[#616161da]'>
                                 <form onSubmit={submit} >
-                                    <TextInput
-                                    id="id"
-                                    type='hidden'
-                                    name='id'
-                                    required
-                                    value={user.id}
-                                    />
-                                <div className="">
-                                    <InputLabel htmlFor="name" value="name" className='text-black' />
+                                    <div className="">
+                                        <InputLabel htmlFor="Profile_name" value="name" className='text-black' />
 
-                                    <TextInput
-                                        id="name"
-                                        type="text"
-                                        name="name"
-                                        className="mt-1 block w-full bg-transparent text-white"
-                                        autoComplete="name"
-                                        required
-                                        onChange={(e) => setData('name', e.target.value)}
-                                    />
+                                        <TextInput
+                                            id="Profile_name"
+                                            type="text"
+                                            name="Profile_name"
+                                            className="mt-1 block w-full bg-transparent text-white"
+                                            autoComplete="Profile_name"
+                                            required
+                                            onChange={(e) => setData('Profile_name', e.target.value)}
+                                        />
 
-                                    <InputError className="mt-2" />
-                                </div>
-                                <div>
-                                    <InputLabel htmlFor="Avatar" value="Avatar" className='text-black' />
+                                        <InputError className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="Avatar" value="Avatar" className='text-black' />
 
-                                    <TextInput
-                                        id="avatar"
-                                        type="file"
-                                        name="avatar"
-                                       className="mt-1 block w-full bg-transparent text-white"
-                                       required
-                                       onChange={(e) => setData('avatar', e.target.value)}
-                                    />
+                                        <TextInput
+                                            id="avatar"
+                                            type="file"
+                                            name="avatar"
+                                            accept="image/*"
+                                            className="mt-1 block w-full bg-transparent text-white"
+                                            required
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file && file.type.startsWith('image/')) {
+                                                    setData('avatar', file)
+                                                }
+                                            }}
+                                        />
 
-                                    <InputError className="mt-2" />
-                                </div>
+                                        <InputError className="mt-2" />
+                                    </div>
+                                    <button type="submit" className="bg-[#E50000] text-white rounded-md px-4 py-1 hover:bg-[#E50000]">
+                                        create
+                                    </button>
                                 </form>
                             </PopoverContent>
                         </Popover>
@@ -153,7 +166,6 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
         </GuestLayout>
     );
 };
-
 export default Profile;
 
 

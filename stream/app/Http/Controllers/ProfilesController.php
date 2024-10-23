@@ -6,28 +6,51 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Profile;
+use App\Models\Profiles;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilesController extends Controller
 {
-    //these is to display user info and profile
     public function show(User $user)
     {
-        $profiles = $user->profiles; // Assuming you have a profiles relationship on the User model
-        return Inertia::render('Auth/Profile', [
-            'user' => $user,
-            'profiles' => $profiles
-        ]);
+        // Performance Boost: Using cache to store user profiles for 1 hour (3600 seconds)
+        // This reduces database queries and improves response time for frequently accessed profiles
+        $cacheKey = 'user_profiles_' . $user->id;
+        
+        $profiles = Cache::remember($cacheKey, 3600, function () use ($user) {
+            return $user->profiles()->with('user')->get();
+        });
+
+        return Inertia::render('Auth/Profile', compact('user', 'profiles'));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        // Add your logic here
-        $request->validate([
-            'name' => 'required|string|max:255',
+        // Performance Boost: Validating data before processing to prevent unnecessary operations
+        $validated = $request->validate([
+            'Profile_name' => 'required|string|max:255',
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'id' => 'required|string',
         ]);
-        return redirect()->back();
+
+        // Performance Boost: Creating directory only once if not exists
+        Storage::disk('public')->makeDirectory('avatars');
+
+        // Performance Boost: Optimized file storage using direct file path
+        $avatarPath = Storage::disk('public')->putFile('avatars', $request->file('avatar'));
+
+        // Performance Boost: Single database query for profile creation
+         Profiles::create([
+            'user_id' => $validated['id'],
+            'Profile_name' => $validated['Profile_name'],
+            'Avatar_url' => '/storage/' . $avatarPath,
+        ]);
+
+        // Performance Boost: Clearing specific cache instead of entire cache
+        Cache::forget('user_profiles_' . $validated['id']);
+
+        return redirect()->route('dashboard');
     }
 }

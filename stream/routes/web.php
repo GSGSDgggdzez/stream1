@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\SubcriptionController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
@@ -31,11 +32,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     // these is the profile routes
     Route::get('/profiles/{user}', [ProfilesController::class, 'show'])
-    ->name('profiles.show');
-    Route::post('profiles', [ProfilesController::class, 'store'])
-        ->name('profiles.store');
+        ->name('profiles.show');
+    Route::post('/profiles', [ProfilesController::class, 'store'])
+        ->name('profiles');
+        Route::post('/subcriptions', [SubcriptionController::class, 'store']);
 });
+
 Route::get('/locations', [RegisteredUserController::class, 'getLocations']);
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
