@@ -15,6 +15,7 @@ import {
 } from "@/Components/ui/popover"
 
 // Define interfaces for User and Profile to ensure type safety
+
 interface User {
     id: number;
     name: string;
@@ -37,11 +38,11 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
         avatar: null as File | null,
         id: user.id,
     });
-    
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         console.log('Submitting form data:', data);
-        
+
         post(route('profiles'), {
             forceFormData: true,
             onSuccess: () => {
@@ -54,8 +55,35 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
             }
         });
     };
-    
-    
+
+    const handleCheckout = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const today = new Date().toISOString().split('T')[0];
+        const nextMonth = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+
+        post('/create-checkout-session', {
+            data: {
+                subscription_type: 'premium',
+                subscription_amount: 2000,
+                subscription_status: 'pending',
+                start_date: today,
+                end_date: nextMonth
+            },
+            preserveScroll: true,
+            onSuccess: (response) => {
+                // Direct redirect to Stripe checkout URL
+                if (response.url) {
+                    window.location.href = response.url;
+                }
+            },
+        });
+    };
+
+
+
+
+
 
     // Function to generate random background colors for profile placeholders
     const getRandomColor = () => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`;
@@ -112,9 +140,12 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                 <div>
                     {/* manage and add profiles */}
                     <div className='flex flex-wrap justify-center gap-4 mt-4'>
-                        <a href="" className="bg-transparent border-white border-2 text-white rounded-md px-4 py-1 hover:border-[#E50000] hover:text-[#E50000]">
+                        {/* <a href="" className="bg-transparent border-white border-2 text-white rounded-md px-4 py-1 hover:border-[#E50000] hover:text-[#E50000]">
                             Edit profile
-                        </a>
+                        </a> */}
+                        <form onSubmit={handleCheckout}>
+                            <button type="submit">Checkout</button>
+                        </form>
                         <Popover >
                             <PopoverTrigger className="bg-transparent border-white border-2 text-white rounded-md px-4 py-1 hover:border-[#E50000] hover:text-[#E50000]">New Profile</PopoverTrigger>
                             <PopoverContent className='bg-[#616161da]'>

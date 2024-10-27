@@ -13,9 +13,10 @@ class Subcription extends Model
         'user_id',
         'subscription_type',
         'Subscription_amount',
-        'Subscription_status',
-        'Subscription_Session_id',
-        'start_date',
+        'card_number',
+        'expiry_date',
+        'cvv',
+        'card_holder',
         'end_date',
     ];
 

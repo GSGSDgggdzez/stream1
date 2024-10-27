@@ -35,10 +35,17 @@ Route::middleware('auth')->group(function () {
         ->name('profiles.show');
     Route::post('/profiles', [ProfilesController::class, 'store'])
         ->name('profiles');
-        Route::post('/subcriptions', [SubcriptionController::class, 'store']);
+    Route::get('/payment', function () {
+        return Inertia::render('Auth/Payment');
+    })->name('payment');
+    Route::post('/subscription', [SubcriptionController::class, 'subscription'])->name('subcription');
+
+    Route::get('/checkout/success', [SubcriptionController::class, 'success'])->name('checkout.success');
+    Route::get('/checkout/cancel', [SubcriptionController::class, 'cancel'])->name('checkout.cancel');
 });
 
 Route::get('/locations', [RegisteredUserController::class, 'getLocations']);
+
 
 
 require __DIR__ . '/auth.php';

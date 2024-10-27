@@ -60,7 +60,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('profiles.show', ['user' => $user->id]);
+        return redirect()->route('payment');
 
     }
     public function getLocations()
@@ -85,6 +85,7 @@ class RegisteredUserController extends Controller
         }, $countries);
     });
 }
+
     
     
 }

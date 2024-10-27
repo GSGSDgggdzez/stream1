@@ -3,14 +3,24 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        @if (app()->environment('local'))
+            <meta http-equiv="Content-Security-Policy" content="
+                default-src * 'unsafe-inline' 'unsafe-eval';
+                script-src * 'unsafe-inline' 'unsafe-eval';
+                style-src * 'unsafe-inline';
+                img-src * data: blob: 'unsafe-inline';
+                font-src * data: blob: 'unsafe-inline';
+                connect-src * 'unsafe-inline';
+                frame-src *;
+            ">
+        @endif
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
         <!-- Scripts -->
+        <script>
+            window.Stripe_API_KeyP = "{{ env('Stripe_API_KeyP') }}";
+        </script>
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
@@ -20,3 +30,4 @@
         @inertia
     </body>
 </html>
+

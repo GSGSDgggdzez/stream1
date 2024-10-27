@@ -2,47 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subcription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
+
 
 class SubcriptionController extends Controller
 {
-    //
+    //   
+
 
     public function subscription(Request $request)
     {
-        $validatedData = $request->validate([
-            'subscription_type' => ['required', 'string', 'in:basic,premium,enterprise', 'regex:/^[a-zA-Z0-9\-\_]+$/'],
-            'subscription_amount' => ['required', 'numeric', 'min:0', 'max:999999.99', 'regex:/^\d+(\.\d{1,2})?$/'],
-            'subscription_status' => ['required', 'string', 'in:active,pending,cancelled,expired'],
-            'subscription_session_id' => ['required', 'string', 'uuid', 'unique:subscriptions,session_id'],
-            'start_date' => ['required', 'date', 'after_or_equal:today', 'before:end_date', 'date_format:Y-m-d'],
-            'end_date' => ['required', 'date', 'after:start_date', 'date_format:Y-m-d', 'before:+1 year'],
+        $request->validate([
+            'subscription_type' => ['required', 'string', 'in:basic,premium,enterprise'],
+            'subscription_amount' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'card_number' => ['required', 'string', 'regex:/^[0-9]{16}$/'],
+            'cvv' => ['required', 'string', 'regex:/^[0-9]{3,4}$/'],
+            'expiry_date' => ['required', 'date', 'after:today'],
+            'end_date' => ['required', 'date', 'after:expiry_date'],
+            'card_holder' => ['required', 'string', 'max:255'],
         ], [
-            'subscription_type.*' => 'Invalid subscription type provided',
-            'subscription_amount.*' => 'Invalid amount format or value',
-            'subscription_status.*' => 'Invalid subscription status',
-            'subscription_session_id.*' => 'Invalid or duplicate session ID',
-            'start_date.*' => 'Invalid start date format or value',
-            'end_date.*' => 'Invalid end date format or value',
-        ]);
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
-
-        $checkout_session = $stripe->checkout->sessions->create([
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => $validatedData['subscription_type'],
-                    ],
-                    'unit_amount' =>  $validatedData['subscription_amount'],
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => 'http://localhost:4242/success',
-            'cancel_url' => 'http://localhost:4242/cancel',
+            'subscription_type.*' => 'Please select a valid subscription plan (basic, premium, or enterprise)',
+            'subscription_amount.*' => 'Please enter a valid amount between 0 and 999,999.99',
+            'card_number.*' => 'Please enter a valid 16-digit card number',
+            'cvv.*' => 'Please enter a valid 3 or 4 digit CVV number',
+            'expiry_date.*' => 'Expiry date must be a future date',
+            'end_date.*' => 'End date must be after the expiry date',
         ]);
 
-        return redirect($checkout_session->url);
-    }
+        $Subscription = Subcription::create([
+            'user_id' => Auth::id(),
+            'subscription_type' => $request->subscription_type,
+            'subscription_amount' => $request->subscription_amount,
+            'card_number' => Hash::make($request->card_number),
+            'cvv' => Hash::make($request->cvv),
+            'card_holder' => Hash::make($request->card_holder),
+            'expiry_date' => Hash::make($request->expiry_date),
+            'end_date' => $request->end_date,
+        ]);
+
+        if ($Subscription) {
+            return redirect()->route('subscription.success');
+        }else{
+            return redirect()->route('subscription.Error');
+        }
+}
 }

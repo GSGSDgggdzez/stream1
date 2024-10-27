@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('subscription_type');
             $table->string('Subscription_amount');
-            $table->string('Subscription_status');
-            $table->string('Subscription_Session_id');
-            $table->dateTime('start_date');
+            $table->string('card_number');
+            $table->string('cvv');
+            $table->string('card_holder');
+            $table->string('expiry_date');
             $table->dateTime('end_date');
             $table->timestamps();
         });
