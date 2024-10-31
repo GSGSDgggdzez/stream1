@@ -63,6 +63,9 @@ class RegisteredUserController extends Controller
         return redirect()->route('payment');
 
     }
+
+
+    //---------------------- these is to Provide location
     public function getLocations()
 {
     return Cache::remember('countries', 86400, function () {

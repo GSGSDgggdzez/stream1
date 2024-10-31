@@ -33,8 +33,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // return redirect()->route('profiles.show', ['user' => Auth::user()->id]);
-        return redirect()->route('payment');
+        return redirect()->route('profiles.show', ['user' => Auth::user()->id]);
+        // return redirect()->route('payment');
     }
 
     /**

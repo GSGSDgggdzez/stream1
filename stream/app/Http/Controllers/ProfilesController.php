@@ -18,12 +18,18 @@ class ProfilesController extends Controller
         // Performance Boost: Using cache to store user profiles for 1 hour (3600 seconds)
         // This reduces database queries and improves response time for frequently accessed profiles
         $cacheKey = 'user_profiles_' . $user->id;
-        
+
         $profiles = Cache::remember($cacheKey, 3600, function () use ($user) {
             return $user->profiles()->with('user')->get();
         });
 
-        return Inertia::render('Auth/Profile', compact('user', 'profiles'));
+        $activeProfile = $profiles->first();
+
+        return Inertia::render('Auth/Profile', [
+            'user' => $user,
+            'profiles' => $profiles,
+            'activeProfile' => $activeProfile
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -42,7 +48,7 @@ class ProfilesController extends Controller
         $avatarPath = Storage::disk('public')->putFile('avatars', $request->file('avatar'));
 
         // Performance Boost: Single database query for profile creation
-         Profiles::create([
+        Profiles::create([
             'user_id' => $validated['id'],
             'Profile_name' => $validated['Profile_name'],
             'Avatar_url' => '/storage/' . $avatarPath,
@@ -51,6 +57,6 @@ class ProfilesController extends Controller
         // Performance Boost: Clearing specific cache instead of entire cache
         Cache::forget('user_profiles_' . $validated['id']);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('Welcome');
     }
 }

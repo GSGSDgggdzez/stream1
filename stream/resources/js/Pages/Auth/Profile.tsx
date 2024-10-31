@@ -101,24 +101,27 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                     {profiles.length > 0 ? (
                         // If profiles exist, map over them and display each one
                         profiles.map((profile) => (
-                            // Individual profile container
-                            <div key={profile.id} className="w-32 h-32 rounded-md overflow-hidden transform transition-transform duration-200 hover:scale-110">
-                                {profile.Avatar_url ? (
-                                    // If profile has an avatar, display it
-                                    <img src={profile.Avatar_url} alt={profile.Profile_name} className="w-full h-full object-cover" />
-                                ) : (
-                                    // If no avatar, show a placeholder with initials on a random background
-                                    <div
-                                        className="w-full h-full flex items-center justify-center text-6xl font-bold text-white"
-                                        style={{ backgroundColor: getRandomColor() }}
-                                    >
-                                        {/* Display first two letters of the profile name */}
-                                        {profile.Profile_name.slice(0, 2).toUpperCase()}
-                                    </div>
-                                )}
-                                {/* Display the profile name below the avatar */}
-                                <p className="mt-2 text-center text-white">{profile.Profile_name}</p>
-                            </div>
+                            <Link
+                                href={`/Welcome/profiles/${user.id}`}
+                                key={profile.id}
+                               
+                                method="get"
+                                preserveScroll
+                            >
+                                <div className="w-32 h-32 rounded-md overflow-hidden transform transition-transform duration-200 hover:scale-110">
+                                    {profile.Avatar_url ? (
+                                        <img src={profile.Avatar_url} alt={profile.Profile_name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div
+                                            className="w-full h-full flex items-center justify-center text-6xl font-bold text-white"
+                                            style={{ backgroundColor: getRandomColor() }}
+                                        >
+                                            {profile.Profile_name.slice(0, 2).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <p className="mt-2 text-center text-white">{profile.Profile_name}</p>
+                                </div>
+                            </Link>
                         ))
                     ) : (
                         // If no profiles, display a single placeholder for the user
@@ -135,7 +138,6 @@ const Profile: React.FC<{ user: User, profiles: Profile[] }> = ({ user, profiles
                             <p className="mt-2 text-center text-white">{user.name}</p>
                         </div>
                     )}
-
                 </div>
                 <div>
                     {/* manage and add profiles */}

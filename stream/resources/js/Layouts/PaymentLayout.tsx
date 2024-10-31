@@ -1,10 +1,25 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 
 export default function Guest({ children }: PropsWithChildren) {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        const img = new Image();
+        img.src = '/build/iii/hero1.svg'; // Preload the image
+
+        img.onload = () => {
+            setIsLoaded(true); // Set loaded state to true when the image is loaded
+        };
+    }, []);
+
     return (
-        <div className="flex min-h-screen flex-col items-center bg-[#1F1F1F] pt-6 sm:justify-center sm:pt-0 bg-[url('/build/iii/hero1.svg')] bg-cover bg-center">
+        <div
+            className={`flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#1F1F1F] transition-all duration-500 ease-in-out ${
+                isLoaded ? 'bg-[url("/build/iii/hero1.svg")] bg-cover bg-center' : 'bg-transparent blur-sm'
+            }`}
+        >
             <div>
                 <Link href="/">
                     <ApplicationLogo className="h-20 fill-current" />
@@ -17,3 +32,4 @@ export default function Guest({ children }: PropsWithChildren) {
         </div>
     );
 }
+

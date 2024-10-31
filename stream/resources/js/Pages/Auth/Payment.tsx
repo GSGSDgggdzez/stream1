@@ -89,6 +89,7 @@ export default function Payment() {
       ...data,
       subscription_type: selectedPlan,
       subscription_amount: parseFloat(selectedPlanDetails!.price),
+      end_date: endDate.toISOString().split('T')[0] // Add this line
     });
     setShowPaymentForm(true);
   };

@@ -3,13 +3,15 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
 import { PropsWithChildren, ReactNode, useState } from 'react';
+
 
 export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    const { user, selectedProfile } = usePage<PageProps>().props.auth;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -45,8 +47,16 @@ export default function Authenticated({
                                                 type="button"
                                                 className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
                                             >
-                                                {user.name}
-
+                                                <div className="flex items-center">
+                                                    {selectedProfile?.Avatar_url && (
+                                                        <img
+                                                            src={selectedProfile.Avatar_url}
+                                                            alt="Profile Avatar"
+                                                            className="h-8 w-8 rounded-full mr-2"
+                                                        />
+                                                    )}
+                                                    {selectedProfile?.Profile_name || user.name}
+                                                </div>
                                                 <svg
                                                     className="-me-0.5 ms-2 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
