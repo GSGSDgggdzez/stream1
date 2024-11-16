@@ -7,12 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-
-
 class SubcriptionController extends Controller
 {
     //   
-
 
     public function subscription(Request $request)
     {
@@ -52,6 +49,42 @@ class SubcriptionController extends Controller
             return redirect()->route('profiles.show', ['user' => Auth::user()->id]);
         } else {
             return redirect()->route('subscription.Error');
+        }
+    }
+
+    public function handleWebhook(Request $request) {
+        $stripe = new \Stripe\Stripe();
+        $stripe::setApiKey(env('Stripe_API_Key'));
+        
+        $payload = $request->getContent();
+        $sig_header = $request->header('Stripe-Signature');
+        
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, 
+                $sig_header, 
+                env('STRIPE_WEBHOOK_SECRET')
+            );
+            
+            switch ($event->type) {
+                case 'checkout.session.completed':
+                    $session = $event->data->object;
+                    // Handle successful payment
+                    Subcription::create([
+                        'user_id' => $session->client_reference_id,
+                        'subscription_type' => $session->metadata->plan,
+                        'subscription_amount' => $session->amount_total / 100,
+                        'subscription_status' => 'active',
+                        'start_date' => now(),
+                        'end_date' => now()->addMonth(),
+                    ]);
+                    break;
+            }
+            
+            return response()->json(['status' => 'success']);
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 }

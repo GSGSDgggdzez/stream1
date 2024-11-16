@@ -11,11 +11,29 @@ class Viewing_history extends Model
 
     protected $fillable = [
         'profile_id',
-        'content_id',
-        'progress',
+        'movie_id',
+        'series_id',
+        'episode_id',
+        'progress'
     ];
-    public function profile(){
-        return $this->hasMany(Profiles::class);
-        return $this->hasMany(Content::class);
+
+    public function profile()
+    {
+        return $this->belongsTo(Profiles::class);
+    }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class);
+    }
+
+    public function series()
+    {
+        return $this->belongsTo(Series::class);
+    }
+
+    public function episode()
+    {
+        return $this->belongsTo(Episode::class);
     }
 }

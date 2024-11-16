@@ -95,8 +95,19 @@ export default function Payment() {
   };
 
   const handleSubmitPayment = () => {
-    post('/subscription');
-  }
+    const selectedPlanDetails = plans.find(plan => plan.name.toLowerCase() === selectedPlan);
+    post('/create-checkout-session', {
+      data: {
+        subscription_type: selectedPlan,
+        subscription_amount: parseFloat(selectedPlanDetails!.price),
+      },
+      onSuccess: (response) => {
+        if (response.url) {
+          window.location.href = response.url;
+        }
+      },
+    });
+  };
 
   return (
     <PaymentLayout>

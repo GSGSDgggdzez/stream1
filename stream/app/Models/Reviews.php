@@ -11,14 +11,24 @@ class Reviews extends Model
 
     protected $fillable = [
         'profile_id',
-        'content_id',
+        'movie_id',
+        'series_id',
         'rate',
-        'comment',
+        'comment'
     ];
 
     public function profile()
     {
-        return $this->hasMany(Profiles::class);
-        return $this->hasMany(Content::class);
+        return $this->belongsTo(Profiles::class);
+    }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class);
+    }
+
+    public function series()
+    {
+        return $this->belongsTo(Series::class);
     }
 }

@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('content__geners', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('content_id')->constrained();
+            $table->foreignId('movie_id')->nullable()->constrained()->onDelete('cascade');
+    $table->foreignId('series_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('geners_id')->constrained();
             $table->timestamps();
         });

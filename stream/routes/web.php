@@ -9,15 +9,8 @@ use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\SubcriptionController;
 use App\Http\Middleware\CheckSubscription;
-
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 // send the user register page 
 Route::get('/', function () {
@@ -30,13 +23,45 @@ Route::middleware(['auth'])->group(function () {
     })->name('payment');
     
     Route::post('/subscription', [SubcriptionController::class, 'subscription'])->name('subcription');
+
+    Route::post('/create-checkout-session', function (Request $request) {
+        $stripe = new \Stripe\Stripe();
+        $stripe::setApiKey(env('Stripe_API_Key'));
+
+        $session = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $request->subscription_type,
+                    ],
+                    'unit_amount' => $request->subscription_amount * 100,
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'subscription',
+            'success_url' => route('profiles.show', ['user' => Auth::id()]),
+            'cancel_url' => route('payment'),
+        ]);
+
+        return response()->json(['url' => $session->url]);
+    })->name('checkout.session');
 });
+
+Route::post('/stripe/webhook', [SubcriptionController::class, 'handleWebhook'])->name('stripe.webhook');
 
 // these contain if the user have subscribed or not
     Route::get('/Welcome/profiles/{user}', function () {
         return Inertia::render('Welcome');
         return redirect()->route('Welcome');
     })->name('Welcome')->middleware(CheckSubscription::class);
+
+    // Route::get('/Welcome/profiles/{user}', function () {
+    //     return Inertia::render('Support');
+    //     return redirect()->route('Support');
+    // })->name('Support')->middleware(CheckSubscription::class);
+
 
     Route::get('/dashboard', function () {
         return Inertia::render('dashboard');
